@@ -9,7 +9,6 @@ from app.data.validation import validate_candle
 from app.data.logger import log
 
 IST = ZoneInfo("Asia/Kolkata")
-TIMEFRAME_SECONDS = 15 * 60  # Phase-1: 15m only
 
 
 class CandleState(Enum):
@@ -73,6 +72,7 @@ class CandleBuilder:
         self.state: Optional[CandleState] = None
         self.last_tick_time: Optional[datetime] = None
         self.tz = IST
+        self.reconnected = False  # Flag for strict boundary after reconnection
 
     def add_tick(
         self,
@@ -113,6 +113,26 @@ class CandleBuilder:
 
         # ---------- START FIRST CANDLE ----------
         if self.current_candle is None:
+            # After reconnection, only start if tick arrives within first 50 seconds
+            if self.reconnected:
+                seconds_into_candle = (tick_time - boundary).total_seconds()
+                
+                if seconds_into_candle > 50:
+                    """log(
+                        "CANDLE_SKIPPED_LATE_START",
+                        layer="builder",
+                        symbol=self.symbol,
+                        payload={
+                            "reason": "first_tick_too_late_after_reconnection",
+                            "boundary": boundary.isoformat(),
+                            "tick_time": tick_time.isoformat(),
+                            "seconds_into_candle": seconds_into_candle,
+                        }
+                    )"""
+                    return None
+                
+                self.reconnected = False  # Accept this candle
+            
             self._start_new_candle(
                 price=price,
                 quantity=quantity,
@@ -141,6 +161,35 @@ class CandleBuilder:
             end_time=new_end,
         )
         return closed_candle
+
+    def reset_on_reconnect(self) -> None:
+        """
+        Called when WebSocket reconnects.
+        
+        - Drops incomplete candle
+        - Forces next candle to start only at boundary
+        - Respects "NO DATA -> NO TRADE" principle
+        """
+        if self.current_candle is not None:
+            log(
+                "CANDLE_DROPPED_RECONNECTION",
+                layer="builder",
+                symbol=self.symbol,
+                payload={
+                    "reason": "websocket_reconnected",
+                    "incomplete_candle": {
+                        "start": self.current_candle.open_time.isoformat(),
+                        "end": self.current_candle.close_time.isoformat(),
+                        "trades_so_far": self.current_candle.number_of_trades,
+                    }
+                }
+            )
+        
+        self.current_candle = None
+        self.state = None
+        self.last_tick_time = None
+        self.reconnected = True
+
 
 
     # ==========================================================

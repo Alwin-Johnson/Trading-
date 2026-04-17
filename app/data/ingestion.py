@@ -100,6 +100,17 @@ class AngelWebSocketIngestion:
     def _on_open(self, wsapp) -> None:
         log("WEBSOCKET_CONNECTED", layer="ingestion", symbol="SYSTEM")
 
+        # Reset builders on reconnection - drop incomplete candles
+        for symbol, builder in self.builders.items():
+            builder.reset_on_reconnect()
+        
+        log(
+            "BUILDERS_RESET_ON_RECONNECT",
+            layer="ingestion",
+            symbol="SYSTEM",
+            payload={"symbols": list(self.builders.keys())}
+        )
+
         token_list = [
             {
                 "exchangeType": 1,  # NSE

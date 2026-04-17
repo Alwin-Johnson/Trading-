@@ -17,6 +17,8 @@ from SmartApi import SmartConnect
 from app.data.builder import CandleBuilder
 from app.data.ingestion import AngelWebSocketIngestion
 from app.data.persistence import PostgresCandleRepository
+from app.data_pipeline.scheduler import BackfillScheduler
+from app.data.symbols import SYMBOL_TOKEN_MAP
 
 
 # ======================================================
@@ -57,14 +59,10 @@ print("✅ Login successful")
 # SYMBOLS + BUILDERS
 # ======================================================
 
-SYMBOL_TOKEN_MAP: Dict[str, str] = {
-    "RELIANCE": "2885",
-    "TCS": "11536",
-    "HDFCBANK": "1333",
-}
 
-TIMEFRAME_NAME = "ONE_MINUTE"
-TIMEFRAME_SECONDS = 60
+
+TIMEFRAME_NAME = "FIVE_MINUTE"
+TIMEFRAME_SECONDS = 300
 
 builders: Dict[str, CandleBuilder] = {
     symbol: CandleBuilder(
@@ -120,9 +118,19 @@ ingestion = AngelWebSocketIngestion(
 
 print("🔄 Starting ingestion...\n")
 
+# ======================================================
+# BACKFILL SCHEDULER
+# ======================================================
+
+scheduler = BackfillScheduler(smartApi)
+scheduler.start()
+
+print("📊 Backfill scheduler started (auto-running every interval)\n")
+
 try:
     ingestion.start()
 except KeyboardInterrupt:
     print("\n🛑 Stopping system...")
+    scheduler.stop()
     repository.close()
     print("✅ Clean shutdown complete")
