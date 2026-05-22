@@ -1,6 +1,6 @@
 # Product Constraints
 
-This document defines the non-negotiable constraints for the intraday trading system.
+This document defines the non-negotiable constraints for the swing trading system.
 These constraints act as a contract and must not change casually.
 
 ---
@@ -8,11 +8,13 @@ These constraints act as a contract and must not change casually.
 ## 1. Trading Scope
 
 - Market: NSE (India)
-- Trading Type: Intraday only
-- Timeframe: 15-minute candles
-- Execution: Manual (no auto-trading in early phases)
-- Instruments: To be finalized (Index / Cash / F&O)
+- Trading Type: Swing trading
+- Execution: Manual (no auto-trading)
+- Instruments: Equities (NSE cash segment)
+- No leverage: Vanilla positions only
 - System is allowed to produce NO TRADE for an entire session
+- Target return: 20% annually
+- Maximum portfolio drawdown: 10%
 
 ---
 
@@ -31,11 +33,14 @@ These constraints act as a contract and must not change casually.
 
 ## 3. Risk & Capital Protection (Non-Negotiable)
 
-- Risk engine has veto power over all strategies
-- Position sizing is always derived, never fixed
-- Daily loss limit must exist
-- Trade frequency limits may be enforced
-- Capital protection has priority over profit
+- **Risk per trade: Maximum 1% of capital** (fixed)
+- Risk engine has absolute veto power over all strategies
+- Position sizing is always derived from risk budget, never fixed
+- Stop-loss is mandatory on every trade (no exceptions)
+- Portfolio drawdown limit: Maximum 10%
+- Daily loss limit enforcement: Required
+- Capital protection has absolute priority over profit
+- Slippage and fees must be modeled in backtests
 
 ---
 
@@ -44,24 +49,31 @@ These constraints act as a contract and must not change casually.
 - Only CLOSED candles may be used for decisions
 - Partial candles must be ignored
 - If market data is missing or invalid → NO TRADE
-- Candle validation rules apply (time & volume based)
+- Candle validation rules apply (OHLC integrity, volume sanity)
+- ATR-based stop-loss calculation mandatory
 
 ---
 
 ## 5. System Behavior
 
-- Deterministic behavior is preferred over prediction
-- ML models (when added) may only FILTER trades, not decide them
-- LLMs (when added) may only EXPLAIN decisions, not make them
+- Deterministic risk rules are non-negotiable
+- Strategy logic may decide WHEN to trade, risk engine ALWAYS decides HOW MUCH
+- ML models (when added) may only FILTER trades, not override risk limits
+- Backtests must include:
+  - Broker fees (0.2% round-trip)
+  - Slippage modeling
+  - Win rate, risk-reward ratio, max drawdown
 
 ---
 
 ## 6. Change Policy
 
-- Parameter tuning is allowed with documentation
-- Structural changes require explicit review
-- Changes to the following require a Phase 0 reset:
-  - Timeframe
-  - Intraday-only constraint
+- Parameter tuning (RSI levels, EMA periods) is allowed with backtest validation
+- Risk constraint changes require explicit review
+- Changes to the following are LOCKED (cannot change):
+  - 1% risk-per-trade limit
+  - 10% maximum drawdown tolerance
+  - Stop-loss enforcement
   - Risk engine veto power
   - Manual execution assumption
+  - No leverage rule

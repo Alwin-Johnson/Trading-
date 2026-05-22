@@ -1,10 +1,8 @@
 # Project Overview
 
-This project is a disciplined, risk-first trading decision system designed to
-support systematic trading across multiple time horizons.
-
-While the long-term goal is to support intraday, swing, and positional trading,
-the system currently focuses on intraday trading as its first controlled use case.
+This project is a disciplined, risk-first trading decision system designed for
+swing trading with minimal capital risk. The core philosophy prioritizes capital
+preservation and consistent, steady returns over aggressive profit-taking.
 
 The system assists a human trader by producing structured, explainable, and
 risk-managed trade plans — not by executing trades automatically.
@@ -14,17 +12,17 @@ risk-managed trade plans — not by executing trades automatically.
 ## What This Project Is
 
 - A backend-only trading decision engine
-- Designed to support multiple trading horizons:
-  - Intraday (current focus)
-  - Swing (future)
-  - Positional (future)
-- Currently operates on intraday data using closed 15-minute candles
+- Focus: Swing trading with strict risk discipline
 - Produces structured trade outcomes:
   - BUY / SELL / NO_TRADE
   - Entry price
   - Risk-managed trade plan
 - Designed for manual execution by a human trader
-- Built incrementally using a strict phase-based roadmap
+- Built with minimal-risk constraints:
+  - Maximum 10% portfolio drawdown tolerance
+  - Position sizing: Fixed 1% risk per trade
+  - Stop-loss: Always defined and enforced
+  - Capital protection over profit maximization
 
 ---
 
@@ -32,18 +30,21 @@ risk-managed trade plans — not by executing trades automatically.
 
 - Not a price prediction system
 - Not a high-frequency trading system
-- Not a fully autonomous trading bot (in early and mid phases)
-- Not tied to a single timeframe or strategy forever
+- Not leverage-based trading (vanilla cash positions only)
+- Not a system for aggressive profit-seeking
+- Not a fully autonomous trading bot
 - Not dependent on TradingView or external charting tools
 
 ---
 
 ## Core Philosophy
 
-- **Risk comes before opportunity**
+- **Capital preservation is non-negotiable**
+- **Minimal risk per trade (1% of capital max)**
 - **No trade is a valid and often optimal outcome**
-- **Correct sequencing beats feature richness**
+- **Steady returns beat volatile spikes**
 - **Deterministic logic is preferred over black-box prediction**
+- **Every trade must have a defined, enforced stop-loss**
 - **Failures must be safe, explainable, and auditable**
 
 ---
@@ -52,14 +53,15 @@ risk-managed trade plans — not by executing trades automatically.
 
 At present, the system focuses exclusively on:
 
-- Intraday trading
+- Swing trading (minimal risk approach)
 - Indian markets (NSE)
-- Closed 15-minute candles
 - Manual execution
 - Single-strategy discipline
+- Portfolio drawdown cap: 10% maximum
+- Risk per trade: 1% of capital
 
 This focus is intentional and exists to establish correctness, safety, and
-operational discipline before expanding scope.
+operational discipline with capital preservation as the top priority.
 
 ---
 
@@ -81,11 +83,16 @@ At any point, if conditions are unsafe or unclear, the system produces
 
 ## Intended Users
 
+- Conservative traders prioritizing capital preservation
 - Disciplined discretionary or semi-systematic traders
-- Small teams building trading infrastructure
-- Developers experimenting with systematic trading under strong risk constraints
+- Investors seeking steady, low-volatility returns
+- Small teams building risk-controlled trading infrastructure
+- Developers experimenting with systematic trading under strict capital constraints
 
-This system is not intended for unsupervised retail auto-trading.
+This system is NOT intended for:
+- Aggressive profit-seekers or leverage traders
+- Unsupervised retail auto-trading
+- Speculative or high-frequency trading
 
 ---
 
