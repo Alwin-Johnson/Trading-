@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from indicators.base_indicator import BaseIndicator
+from app.indicators.base_indicator import BaseIndicator
 
 
 class ATR(BaseIndicator):

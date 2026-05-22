@@ -14,11 +14,14 @@ MARKET_START = time(9, 15)
 MARKET_END = time(15, 30)
 
 ALLOWED_TIMEFRAMES = {
-    "FIFTEEN_MINUTE": timedelta(minutes=15),
     "ONE_MINUTE": timedelta(minutes=1),
     "THREE_MINUTE": timedelta(minutes=3),
     "FIVE_MINUTE": timedelta(minutes=5),
     "TEN_MINUTE": timedelta(minutes=10),
+    "FIFTEEN_MINUTE": timedelta(minutes=15),
+    "THIRTY_MINUTE": timedelta(minutes=30),
+    "ONE_HOUR": timedelta(hours=1),
+    "ONE_DAY": timedelta(days=1),
 }
 
 MIN_VOLUME = 1
@@ -80,13 +83,14 @@ def validate_candle(candle: Candle) -> Tuple[bool, Optional[str]]:
     if (candle.close_time - candle.open_time) != expected_duration:
         return False, "TIMEFRAME_MISMATCH"
 
-    # Market hours rule (Angel-correct)
-    # Candle must END by 15:30, start-time can be earlier
-    if candle.close_time.time() > MARKET_END:
-        return False, "MARKET_HOURS_VIOLATION"
-    
-    if candle.open_time.time() < MARKET_START and candle.close_time.time() <= MARKET_START:
-        return False, "MARKET_HOURS_VIOLATION"
+    # Market hours rule (skip for historical data, only enforce for live)
+    # Historical data from Angel API may include candles slightly outside hours
+    if candle.mode != "historical":
+        if candle.close_time.time() > MARKET_END:
+            return False, "MARKET_HOURS_VIOLATION"
+        
+        if candle.open_time.time() < MARKET_START and candle.close_time.time() <= MARKET_START:
+            return False, "MARKET_HOURS_VIOLATION"
     # --------------------------------------------------------
     # 5️⃣ Price Type + Positivity
     # --------------------------------------------------------

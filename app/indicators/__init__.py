@@ -22,12 +22,12 @@ Usage pattern
 
 __version__ = "0.1.0"
 
-from indicators.base_indicator import BaseIndicator
-from indicators.ema            import EMA
-from indicators.rsi            import RSI
-from indicators.atr            import ATR
-from indicators.volume         import volume_sma, relative_volume, is_volume_spike
-from indicators.utils          import (
+from app.indicators.base_indicator import BaseIndicator
+from app.indicators.ema            import EMA
+from app.indicators.rsi            import RSI
+from app.indicators.atr            import ATR
+from app.indicators.volume         import volume_sma, relative_volume, is_volume_spike
+from app.indicators.utils          import (
     validate_input_dataframe,
     check_required_columns,
     handle_missing_values,

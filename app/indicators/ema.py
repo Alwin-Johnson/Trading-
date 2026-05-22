@@ -1,5 +1,5 @@
 import pandas as pd
-from indicators.base_indicator import BaseIndicator
+from app.indicators.base_indicator import BaseIndicator
 
 
 class EMA(BaseIndicator):

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 import pandas as pd
 
-from indicators.utils import validate_input_dataframe, check_required_columns
+from app.indicators.utils import validate_input_dataframe, check_required_columns
 
 
 class BaseIndicator(ABC):
